@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL
-pragma solidity 0.8.22;
+pragma solidity 0.8.30;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@layerzerolabs/oft-evm/contracts/OFT.sol";
