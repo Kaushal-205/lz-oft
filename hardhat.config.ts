@@ -54,14 +54,20 @@ const config: HardhatUserConfig = {
                         enabled: true,
                         runs: 200,
                     },
+                    viaIR: true,
                 },
             },
         ],
     },
     networks: {
-        'sepolia-testnet': {
-            eid: EndpointId.SEPOLIA_V2_TESTNET,
-            url: process.env.RPC_URL_SEPOLIA || 'https://gateway.tenderly.co/public/sepolia',
+        'base-sepolia': {
+            eid: EndpointId.BASESEP_V2_TESTNET,
+            url: process.env.BASE_SEPOLIA_RPC_URL,
+            accounts,
+        },
+        'op-sepolia': {
+            eid: EndpointId.OPTSEP_V2_TESTNET,
+            url: process.env.OP_SEPOLIA_RPC_URL,
             accounts,
         },
         hardhat: {

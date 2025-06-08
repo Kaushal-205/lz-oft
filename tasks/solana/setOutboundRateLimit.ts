@@ -26,6 +26,33 @@ interface Args {
     refillPerSecond: bigint
 }
 
+// task('lz:oft:solana:set-outbound-rate-limit', 'Set outbound rate limit for Solana')
+//     .addParam('rateLimit', 'Outbound rate limit', undefined, devtoolsTypes.int)
+//     .setAction(async ({ rateLimit }) => {
+//         const { connection, umi, umiWalletSigner } = await deriveConnection(EndpointId.SOLANA_V2_TESTNET)
+//         const { programId, oftStorePda } = getSolanaDeployment(EndpointId.SOLANA_V2_TESTNET)
+//         const sdk = oft(
+//             connection,
+//             umiWalletSigner,
+//             programId,
+//             oftStorePda,
+//             {
+//                 commitment: 'confirmed',
+//             },
+//             umi
+//         )
+//         const solanaRateLimits = {
+//             oftStore: oftStorePda,
+//             rateLimit: {
+//                 inbound: BigInt(0),
+//                 outbound: BigInt(rateLimit),
+//             },
+//         }
+//         // const tx = (await sdk.setOutboundRateLimit(EndpointId.SEPOLIA_V2_TESTNET, solanaRateLimits)).data
+//         // const sig = await sendAndConfirmTransaction(connection, tx, [umiWalletSigner])
+//         // console.log(`tx: ${sig}`)
+//     })
+
 task(
     'lz:oft:solana:outbound-rate-limit',
     "Sets the Solana and EVM rate limits from './scripts/solana/utils/constants.ts'"
@@ -67,7 +94,7 @@ task(
         // for (const peer of graph.connections.filter((connection) => connection.vector.from.eid === solanaEid)) {
         try {
             const tx = deserializeTransactionMessage(
-                (await sdk.setOutboundRateLimit(EndpointId.SEPOLIA_V2_TESTNET, solanaRateLimits)).data
+                (await sdk.setOutboundRateLimit(taskArgs.dstEid, solanaRateLimits)).data
             )
             tx.sign(keypair)
             const txId = await sendAndConfirmTransaction(connection, tx, [keypair])

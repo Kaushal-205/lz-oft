@@ -5,18 +5,27 @@ import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-har
 
 import { getOftStoreAddress } from './tasks/solana'
 
-// Note:  Do not use address for EVM OmniPointHardhat contracts.  Contracts are loaded using hardhat-deploy.
-// If you do use an address, ensure artifacts exists.
-const sepoliaContract: OmniPointHardhat = {
-    eid: EndpointId.SEPOLIA_V2_TESTNET,
-    contractName: 'MyOFT',
+// Canonical OFT on Base Sepolia
+const baseSepoliaOft: OmniPointHardhat = {
+    eid: EndpointId.BASESEP_V2_TESTNET,
+    contractName: 'TGNToken',
+    address: '0x1F81975cb418183deaf9d3852930743Eff06DF80',
 }
 
-const solanaContract: OmniPointHardhat = {
+// Non-canonical OFT on OP Sepolia
+const opSepoliaOft: OmniPointHardhat = {
+    eid: EndpointId.OPTSEP_V2_TESTNET,
+    contractName: 'TGNToken',
+    address: '0x1F81975cb418183deaf9d3852930743Eff06DF80',
+}
+
+// Non-canonical OFT on Solana
+const solanaOft: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_TESTNET,
     address: getOftStoreAddress(EndpointId.SOLANA_V2_TESTNET),
 }
 
+// Message execution options
 const EVM_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
     {
         msgType: 1,
@@ -35,23 +44,42 @@ const SOLANA_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
     },
 ]
 
-// Learn about Message Execution Options: https://docs.layerzero.network/v2/developers/solana/oft/account#message-execution-options
-// Learn more about the Simple Config Generator - https://docs.layerzero.network/v2/developers/evm/technical-reference/simple-config
 export default async function () {
-    // note: pathways declared here are automatically bidirectional
-    // if you declare A,B there's no need to declare B,A
     const connections = await generateConnectionsConfig([
+        // Base ↔ Solana
         [
-            sepoliaContract, // Chain A contract
-            solanaContract, // Chain B contract
-            [['LayerZero Labs'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [A to B confirmations, B to A confirmations]
-            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // Chain B enforcedOptions, Chain A enforcedOptions
+            baseSepoliaOft,
+            solanaOft,
+            [['LayerZero Labs'], []],
+            [15, 32],
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+
+        // Base ↔ OP Sepolia
+        [
+            baseSepoliaOft,
+            opSepoliaOft,
+            [['LayerZero Labs'], []],
+            [15, 15],
+            [EVM_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
+        ],
+
+        // OP Sepolia ↔ Solana
+        [
+            opSepoliaOft,
+            solanaOft,
+            [['LayerZero Labs'], []],
+            [15, 32],
+            [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS],
         ],
     ])
 
     return {
-        contracts: [{ contract: sepoliaContract }, { contract: solanaContract }],
+        contracts: [
+            { contract: baseSepoliaOft },
+            { contract: opSepoliaOft },
+            { contract: solanaOft },
+        ],
         connections,
     }
 }
